@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Lecto - Tu amigo de lectura</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="mascota" aria-hidden="true">🦉</div>
+      <div>
+        <h1>Lecto</h1>
+        <p class="subtitulo">¡Tu amigo para leer y entender!</p>
+      </div>
+    </header>
+
+    <main class="tarjeta" id="tarjeta-principal">
+
+      <!-- PANTALLA DE INICIO -->
+      <section id="pantalla-inicio" class="pantalla">
+        <p class="mensaje-tutor">
+          <span class="burbuja">
+            ¡Hola! Soy Lecto 🦉. Vamos a leer un cuento juntos y luego hablamos de él. ¿Sobre qué te gustaría leer?
+          </span>
+        </p>
+
+        <label class="etiqueta" for="input-tema">Un tema (opcional)</label>
+        <input id="input-tema" type="text" placeholder="Ej: dinosaurios, el mar, mi mascota..." maxlength="60" />
+
+        <div class="nivel-selector">
+          <span class="etiqueta">Nivel del texto:</span>
+          <div class="nivel-botones">
+            <button class="nivel-btn activo" data-nivel="facil" type="button">🌱 Fácil</button>
+            <button class="nivel-btn" data-nivel="medio" type="button">🌟 Un poco más difícil</button>
+          </div>
+        </div>
+
+        <div class="botones-inicio">
+          <button id="btn-sorpresa" class="btn btn-secundario" type="button">🎲 ¡Sorpréndeme!</button>
+          <button id="btn-empezar" class="btn btn-primario" type="button">📖 ¡Empezar a leer!</button>
+        </div>
+      </section>
+
+      <!-- PANTALLA DE LECTURA -->
+      <section id="pantalla-lectura" class="pantalla oculta">
+        <h2 id="titulo-lectura" class="titulo-lectura"></h2>
+        <p class="pista">👉 Toca cualquier palabra si no la entiendes</p>
+        <div id="texto-lectura" class="texto-lectura"></div>
+        <button id="btn-ya-lei" class="btn btn-primario btn-ancho" type="button">
+          ✅ ¡Ya leí! Hazme preguntas
+        </button>
+      </section>
+
+      <!-- PANTALLA DE PREGUNTAS / CONVERSACION -->
+      <section id="pantalla-preguntas" class="pantalla oculta">
+        <div class="progreso" id="progreso"></div>
+        <button id="btn-ver-texto" class="btn-enlace" type="button">📖 Ver el texto otra vez</button>
+        <div id="chat" class="chat" aria-live="polite"></div>
+        <form id="form-respuesta" class="form-respuesta">
+          <input id="input-respuesta" type="text" placeholder="Escribe tu respuesta..." autocomplete="off" />
+          <button type="submit" class="btn btn-primario btn-enviar">➤</button>
+        </form>
+      </section>
+
+      <!-- PANTALLA DE FEEDBACK FINAL -->
+      <section id="pantalla-final" class="pantalla oculta">
+        <div class="celebracion" aria-hidden="true">🎉🦉🎉</div>
+        <p class="mensaje-tutor">
+          <span class="burbuja" id="texto-final"></span>
+        </p>
+        <button id="btn-otro-texto" class="btn btn-primario btn-ancho" type="button">🔁 Leer otro texto</button>
+      </section>
+
+      <!-- ESTADO DE CARGA -->
+      <div id="cargando" class="cargando oculta">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Lecto está pensando...</p>
+      </div>
+
+      <!-- ESTADO DE ERROR -->
+      <div id="error-box" class="error-box oculta">
+        <p id="error-mensaje"></p>
+        <button id="btn-reintentar" class="btn btn-secundario" type="button">Reintentar</button>
+      </div>
+    </main>
+
+    <p class="pie">Hecho con 💛 para aprender a leer</p>
+  </div>
+
+  <!-- MODAL EXPLICACION DE PALABRA -->
+  <div id="modal-palabra" class="modal oculta" role="dialog" aria-modal="true">
+    <div class="modal-contenido">
+      <button id="modal-cerrar" class="modal-cerrar" aria-label="Cerrar">✕</button>
+      <div class="modal-mascota">🦉</div>
+      <h3 id="modal-palabra-titulo"></h3>
+      <div id="modal-palabra-cuerpo" class="modal-cuerpo"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
