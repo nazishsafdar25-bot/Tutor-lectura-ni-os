@@ -31,12 +31,9 @@
         <label class="etiqueta" for="input-tema">Un tema (opcional)</label>
         <input id="input-tema" type="text" placeholder="Ej: dinosaurios, el mar, mi mascota..." maxlength="60" />
 
-        <div class="nivel-selector">
-          <span class="etiqueta">Nivel del texto:</span>
-          <div class="nivel-botones">
-            <button class="nivel-btn activo" data-nivel="facil" type="button">🌱 Fácil</button>
-            <button class="nivel-btn" data-nivel="medio" type="button">🌟 Un poco más difícil</button>
-          </div>
+        <div class="nivel-indicador">
+          <span class="etiqueta">Nivel actual (se ajusta solo):</span>
+          <span id="nivel-badge" class="nivel-badge">🌱 Fácil</span>
         </div>
 
         <div class="botones-inicio">
@@ -72,6 +69,7 @@
         <p class="mensaje-tutor">
           <span class="burbuja" id="texto-final"></span>
         </p>
+        <p id="nota-nivel" class="nota-nivel"></p>
         <button id="btn-otro-texto" class="btn btn-primario btn-ancho" type="button">🔁 Leer otro texto</button>
       </section>
 

@@ -117,39 +117,31 @@ body {
   border-color: var(--azul);
 }
 
-.nivel-selector {
+.nivel-indicador {
   margin-top: 4px;
-}
-
-.nivel-botones {
   display: flex;
+  align-items: center;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.nivel-btn {
-  flex: 1;
-  min-width: 130px;
-  padding: 12px 10px;
+.nivel-badge {
+  display: inline-block;
+  padding: 8px 14px;
   border-radius: 14px;
-  border: 2px solid #dbe6ec;
-  background: #fff;
-  font-family: inherit;
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
-  color: #557;
-  transition: transform 0.1s ease, border-color 0.15s ease;
-}
-
-.nivel-btn.activo {
-  border-color: var(--azul);
+  border: 2px solid var(--azul);
   background: #e8f6fd;
   color: var(--azul-oscuro);
+  font-weight: 700;
+  font-size: 15px;
 }
 
-.nivel-btn:active {
-  transform: scale(0.97);
+.nota-nivel {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--azul-oscuro);
+  margin: -6px 0 4px;
 }
 
 .botones-inicio {

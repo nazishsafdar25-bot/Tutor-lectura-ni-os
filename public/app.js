@@ -10,7 +10,8 @@
   const errorMensaje = document.getElementById('error-mensaje');
 
   const inputTema = document.getElementById('input-tema');
-  const nivelBotones = document.querySelectorAll('.nivel-btn');
+  const nivelBadge = document.getElementById('nivel-badge');
+  const notaNivelEl = document.getElementById('nota-nivel');
   const btnSorpresa = document.getElementById('btn-sorpresa');
   const btnEmpezar = document.getElementById('btn-empezar');
   const btnYaLei = document.getElementById('btn-ya-lei');
@@ -31,11 +32,34 @@
   const modalCuerpo = document.getElementById('modal-palabra-cuerpo');
   const modalCerrar = document.getElementById('modal-cerrar');
 
-  let nivel = 'facil';
+  const NIVELES = [
+    { emoji: '🌱', label: 'Muy fácil', desc: 'muy facil: oraciones muy cortas (menos de 8 palabras), vocabulario muy basico, para quien apenas empieza a leer' },
+    { emoji: '🌿', label: 'Fácil', desc: 'facil: oraciones cortas (menos de 12 palabras), vocabulario cotidiano' },
+    { emoji: '🌟', label: 'Medio', desc: 'medio: oraciones un poco mas largas, con algo de vocabulario nuevo que se entiende por el contexto' },
+    { emoji: '🚀', label: 'Avanzado', desc: 'avanzado: oraciones mas elaboradas, vocabulario mas variado e ideas con un poco mas de matiz' }
+  ];
+  const NIVEL_STORAGE_KEY = 'lecto_nivel_index';
+
+  function cargarNivelIndex() {
+    const guardado = parseInt(localStorage.getItem(NIVEL_STORAGE_KEY), 10);
+    if (Number.isInteger(guardado) && guardado >= 0 && guardado < NIVELES.length) return guardado;
+    return 1;
+  }
+
+  function guardarNivelIndex(indice) {
+    localStorage.setItem(NIVEL_STORAGE_KEY, String(indice));
+  }
+
+  function actualizarBadgeNivel() {
+    const n = NIVELES[nivelIndex];
+    nivelBadge.textContent = `${n.emoji} ${n.label}`;
+  }
+
+  let nivelIndex = cargarNivelIndex();
   let historial = [];
   let ultimaAccion = null;
   let textoActual = '';
-  let preguntasTotales = 3;
+  let preguntasTotales = 4;
 
   function mostrarPantalla(nombre) {
     Object.values(pantallas).forEach((p) => p.classList.add('oculta'));
@@ -55,13 +79,7 @@
     errorBox.classList.add('oculta');
   }
 
-  nivelBotones.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      nivelBotones.forEach((b) => b.classList.remove('activo'));
-      btn.classList.add('activo');
-      nivel = btn.dataset.nivel;
-    });
-  });
+  actualizarBadgeNivel();
 
   async function llamarTutor(mensaje) {
     ocultarError();
@@ -107,8 +125,20 @@
 
     if (paso.tipo === 'feedback_final') {
       textoFinalEl.textContent = (paso.emoji ? paso.emoji + ' ' : '') + paso.texto;
+      aplicarNivelSugerido(paso.nivel_sugerido);
       mostrarPantalla('final');
       return;
+    }
+  }
+
+  function aplicarNivelSugerido(nivelSugerido) {
+    if (nivelSugerido === 'subir' && nivelIndex < NIVELES.length - 1) {
+      nivelIndex += 1;
+      guardarNivelIndex(nivelIndex);
+      actualizarBadgeNivel();
+      notaNivelEl.textContent = `🎉 ¡Lo hiciste tan bien que subimos al nivel ${NIVELES[nivelIndex].label}!`;
+    } else {
+      notaNivelEl.textContent = '';
     }
   }
 
@@ -189,8 +219,9 @@
 
   function iniciarSesion(temaTexto) {
     historial = [];
-    preguntasTotales = 3;
-    const nivelTexto = nivel === 'facil' ? 'fácil, para quien recién empieza a leer' : 'un poco más difícil, para practicar más';
+    preguntasTotales = 4;
+    notaNivelEl.textContent = '';
+    const nivelTexto = NIVELES[nivelIndex].desc;
     const mensaje = temaTexto
       ? `Quiero leer un texto sobre: ${temaTexto}. Nivel de dificultad: ${nivelTexto}. Por favor comienza.`
       : `Sorpréndeme con un tema divertido para leer. Nivel de dificultad: ${nivelTexto}. Por favor comienza.`;
