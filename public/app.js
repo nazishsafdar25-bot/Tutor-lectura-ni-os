@@ -9,6 +9,7 @@
   const errorBox = document.getElementById('error-box');
   const errorMensaje = document.getElementById('error-mensaje');
 
+  const idiomaBotones = document.querySelectorAll('.idioma-btn');
   const inputTema = document.getElementById('input-tema');
   const nivelBadge = document.getElementById('nivel-badge');
   const notaNivelEl = document.getElementById('nota-nivel');
@@ -55,6 +56,23 @@
     nivelBadge.textContent = `${n.emoji} ${n.label}`;
   }
 
+  const IDIOMAS = {
+    catalan: { label: 'catalán', instruccion: 'catalán (català)' },
+    castellano: { label: 'castellano', instruccion: 'castellano (español)' },
+    ingles: { label: 'inglés', instruccion: 'inglés (English)' }
+  };
+  const IDIOMA_STORAGE_KEY = 'lecto_idioma';
+
+  function cargarIdioma() {
+    const guardado = localStorage.getItem(IDIOMA_STORAGE_KEY);
+    return IDIOMAS[guardado] ? guardado : 'castellano';
+  }
+
+  function guardarIdioma(codigo) {
+    localStorage.setItem(IDIOMA_STORAGE_KEY, codigo);
+  }
+
+  let idiomaActual = cargarIdioma();
   let nivelIndex = cargarNivelIndex();
   let historial = [];
   let ultimaAccion = null;
@@ -80,6 +98,16 @@
   }
 
   actualizarBadgeNivel();
+
+  idiomaBotones.forEach((btn) => {
+    if (btn.dataset.idioma === idiomaActual) btn.classList.add('activo');
+    else btn.classList.remove('activo');
+    btn.addEventListener('click', () => {
+      idiomaActual = btn.dataset.idioma;
+      guardarIdioma(idiomaActual);
+      idiomaBotones.forEach((b) => b.classList.toggle('activo', b === btn));
+    });
+  });
 
   async function llamarTutor(mensaje) {
     ocultarError();
@@ -202,7 +230,7 @@
       const res = await fetch('/api/explicar-palabra', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ palabra, contexto: textoActual })
+        body: JSON.stringify({ palabra, contexto: textoActual, idioma: idiomaActual })
       });
       const datos = await res.json();
       if (!res.ok) throw new Error(datos.error || 'No pude explicar esa palabra.');
@@ -222,9 +250,11 @@
     preguntasTotales = 4;
     notaNivelEl.textContent = '';
     const nivelTexto = NIVELES[nivelIndex].desc;
+    const idiomaTexto = IDIOMAS[idiomaActual].instruccion;
+    const instruccionIdioma = `Idioma: escribe TODO (titulo, texto, preguntas, aclaraciones y feedback final) en ${idiomaTexto}, sin importar en que idioma te escriba yo.`;
     const mensaje = temaTexto
-      ? `Quiero leer un texto sobre: ${temaTexto}. Nivel de dificultad: ${nivelTexto}. Por favor comienza.`
-      : `Sorpréndeme con un tema divertido para leer. Nivel de dificultad: ${nivelTexto}. Por favor comienza.`;
+      ? `Quiero leer un texto sobre: ${temaTexto}. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Por favor comienza.`
+      : `Sorpréndeme con un tema divertido para leer. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Por favor comienza.`;
     ultimaAccion = () => iniciarSesion(temaTexto);
     llamarTutor(mensaje);
   }

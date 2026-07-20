@@ -126,6 +126,41 @@ body {
   border-color: var(--azul);
 }
 
+.idioma-selector {
+  margin-top: 4px;
+}
+
+.idioma-botones {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.idioma-btn {
+  flex: 1;
+  min-width: 100px;
+  padding: 10px 8px;
+  border-radius: 14px;
+  border: 2px solid #dbe6ec;
+  background: #fff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  color: #557;
+  transition: transform 0.1s ease, border-color 0.15s ease;
+}
+
+.idioma-btn.activo {
+  border-color: var(--azul);
+  background: #e8f6fd;
+  color: var(--azul-oscuro);
+}
+
+.idioma-btn:active {
+  transform: scale(0.97);
+}
+
 .nivel-indicador {
   margin-top: 4px;
   display: flex;
@@ -516,6 +551,15 @@ body {
           </span>
         </p>
 
+        <div class="idioma-selector">
+          <span class="etiqueta">Idioma de la lectura:</span>
+          <div class="idioma-botones">
+            <button class="idioma-btn" data-idioma="catalan" type="button">🟡 Català</button>
+            <button class="idioma-btn activo" data-idioma="castellano" type="button">🔴 Castellano</button>
+            <button class="idioma-btn" data-idioma="ingles" type="button">🔵 English</button>
+          </div>
+        </div>
+
         <label class="etiqueta" for="input-tema">Un tema (opcional)</label>
         <input id="input-tema" type="text" placeholder="Ej: dinosaurios, el mar, mi mascota..." maxlength="60" />
 
@@ -720,19 +764,26 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
       return { paso, historial: nuevoHistorial };
     }
 
-    async function pedirExplicacionPalabra(palabra, contexto) {
+    const IDIOMAS_EXPLICACION = {
+      catalan: 'catalán (català)',
+      castellano: 'castellano (español)',
+      ingles: 'inglés (English)'
+    };
+
+    async function pedirExplicacionPalabra(palabra, contexto, idioma) {
       const apiKey = getApiKey();
+      const idiomaTexto = IDIOMAS_EXPLICACION[idioma] || IDIOMAS_EXPLICACION.castellano;
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: claudeHeaders(apiKey),
         body: JSON.stringify({
           model: MODEL,
           max_tokens: 150,
-          system: EXPLICAR_PALABRA_SYSTEM,
+          system: `${EXPLICAR_PALABRA_SYSTEM} Responde SIEMPRE en ${idiomaTexto}, sin importar el idioma del texto de entrada.`,
           messages: [
             {
               role: 'user',
-              content: `Texto donde aparece la palabra: "${contexto || ''}"\n\nPalabra que el nino no entiende: "${palabra}"\n\nExplicame esta palabra de forma muy sencilla para un nino.`
+              content: `Texto donde aparece la palabra: "${contexto || ''}"\n\nPalabra que el nino no entiende: "${palabra}"\n\nExplicame esta palabra de forma muy sencilla para un nino, en ${idiomaTexto}.`
             }
           ]
         })
@@ -759,6 +810,7 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
     const btnGuardarClave = document.getElementById('btn-guardar-clave');
     const btnCambiarClave = document.getElementById('btn-cambiar-clave');
 
+    const idiomaBotones = document.querySelectorAll('.idioma-btn');
     const inputTema = document.getElementById('input-tema');
     const nivelBadge = document.getElementById('nivel-badge');
     const notaNivelEl = document.getElementById('nota-nivel');
@@ -805,6 +857,23 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
       nivelBadge.textContent = `${n.emoji} ${n.label}`;
     }
 
+    const IDIOMAS = {
+      catalan: { label: 'catalán', instruccion: 'catalán (català)' },
+      castellano: { label: 'castellano', instruccion: 'castellano (español)' },
+      ingles: { label: 'inglés', instruccion: 'inglés (English)' }
+    };
+    const IDIOMA_STORAGE_KEY = 'lecto_idioma';
+
+    function cargarIdioma() {
+      const guardado = localStorage.getItem(IDIOMA_STORAGE_KEY);
+      return IDIOMAS[guardado] ? guardado : 'castellano';
+    }
+
+    function guardarIdioma(codigo) {
+      localStorage.setItem(IDIOMA_STORAGE_KEY, codigo);
+    }
+
+    let idiomaActual = cargarIdioma();
     let nivelIndex = cargarNivelIndex();
     let historial = [];
     let ultimaAccion = null;
@@ -830,6 +899,16 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
     }
 
     actualizarBadgeNivel();
+
+    idiomaBotones.forEach((btn) => {
+      if (btn.dataset.idioma === idiomaActual) btn.classList.add('activo');
+      else btn.classList.remove('activo');
+      btn.addEventListener('click', () => {
+        idiomaActual = btn.dataset.idioma;
+        guardarIdioma(idiomaActual);
+        idiomaBotones.forEach((b) => b.classList.toggle('activo', b === btn));
+      });
+    });
 
     // Pantalla inicial: pedir clave si no existe todavia
     if (getApiKey()) {
@@ -965,7 +1044,7 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
       modalTitulo.textContent = mostrada;
       modalCuerpo.innerHTML = '<div class="spinner"></div>';
       try {
-        modalCuerpo.textContent = await pedirExplicacionPalabra(palabra, textoActual);
+        modalCuerpo.textContent = await pedirExplicacionPalabra(palabra, textoActual, idiomaActual);
       } catch (err) {
         modalCuerpo.textContent = 'Uy, no pude pensarlo bien. ¿Intentas de nuevo? 🦉';
       }
@@ -981,9 +1060,11 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
       preguntasTotales = 4;
       notaNivelEl.textContent = '';
       const nivelTexto = NIVELES[nivelIndex].desc;
+      const idiomaTexto = IDIOMAS[idiomaActual].instruccion;
+      const instruccionIdioma = `Idioma: escribe TODO (titulo, texto, preguntas, aclaraciones y feedback final) en ${idiomaTexto}, sin importar en que idioma te escriba yo.`;
       const mensaje = temaTexto
-        ? `Quiero leer un texto sobre: ${temaTexto}. Nivel de dificultad: ${nivelTexto}. Por favor comienza.`
-        : `Sorpréndeme con un tema divertido para leer. Nivel de dificultad: ${nivelTexto}. Por favor comienza.`;
+        ? `Quiero leer un texto sobre: ${temaTexto}. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Por favor comienza.`
+        : `Sorpréndeme con un tema divertido para leer. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Por favor comienza.`;
       ultimaAccion = () => iniciarSesion(temaTexto);
       llamarTutor(mensaje);
     }

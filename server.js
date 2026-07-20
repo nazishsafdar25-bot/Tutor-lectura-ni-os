@@ -124,25 +124,32 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+const IDIOMAS_EXPLICACION = {
+  catalan: 'catalán (català)',
+  castellano: 'castellano (español)',
+  ingles: 'inglés (English)'
+};
+
 app.post('/api/explicar-palabra', async (req, res) => {
   try {
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({ error: 'Falta configurar ANTHROPIC_API_KEY en el servidor.' });
     }
 
-    const { palabra, contexto } = req.body;
+    const { palabra, contexto, idioma } = req.body;
     if (!palabra || typeof palabra !== 'string') {
       return res.status(400).json({ error: 'Falta el campo "palabra".' });
     }
+    const idiomaTexto = IDIOMAS_EXPLICACION[idioma] || IDIOMAS_EXPLICACION.castellano;
 
     const response = await anthropic.messages.create({
       model: MODEL,
       max_tokens: 150,
-      system: `Eres "Lecto", un tutor de lectura para ninos de primaria. Un nino toco una palabra de un texto porque no la entiende. Explica esa palabra con MUCHA sencillez, en 1 o 2 frases muy cortas, como si hablaras con un nino de 7 anos. Si ayuda, da un ejemplo cotidiano o una comparacion facil. No uses palabras dificiles en tu explicacion. Responde SOLO con la explicacion en texto plano, sin titulos ni comillas, puedes terminar con un emoji.`,
+      system: `Eres "Lecto", un tutor de lectura para ninos de primaria. Un nino toco una palabra de un texto porque no la entiende. Explica esa palabra con MUCHA sencillez, en 1 o 2 frases muy cortas, como si hablaras con un nino de 7 anos. Si ayuda, da un ejemplo cotidiano o una comparacion facil. No uses palabras dificiles en tu explicacion. Responde SIEMPRE en ${idiomaTexto}, sin importar el idioma del texto de entrada. Responde SOLO con la explicacion en texto plano, sin titulos ni comillas, puedes terminar con un emoji.`,
       messages: [
         {
           role: 'user',
-          content: `Texto donde aparece la palabra: "${contexto || ''}"\n\nPalabra que el nino no entiende: "${palabra}"\n\nExplicame esta palabra de forma muy sencilla para un nino.`
+          content: `Texto donde aparece la palabra: "${contexto || ''}"\n\nPalabra que el nino no entiende: "${palabra}"\n\nExplicame esta palabra de forma muy sencilla para un nino, en ${idiomaTexto}.`
         }
       ]
     });
