@@ -1,5 +1,6 @@
 (() => {
   const pantallas = {
+    login: document.getElementById('pantalla-login'),
     inicio: document.getElementById('pantalla-inicio'),
     lectura: document.getElementById('pantalla-lectura'),
     preguntas: document.getElementById('pantalla-preguntas'),
@@ -8,6 +9,10 @@
   const cargando = document.getElementById('cargando');
   const errorBox = document.getElementById('error-box');
   const errorMensaje = document.getElementById('error-mensaje');
+
+  const inputUsuario = document.getElementById('input-usuario');
+  const inputClave = document.getElementById('input-clave');
+  const btnEntrar = document.getElementById('btn-entrar');
 
   const idiomaBotones = document.querySelectorAll('.idioma-btn');
   const inputTema = document.getElementById('input-tema');
@@ -97,6 +102,20 @@
     errorBox.classList.add('oculta');
   }
 
+  const TOKEN_STORAGE_KEY = 'lecto_token';
+
+  function getToken() {
+    return localStorage.getItem(TOKEN_STORAGE_KEY) || '';
+  }
+
+  function guardarToken(token) {
+    localStorage.setItem(TOKEN_STORAGE_KEY, token);
+  }
+
+  function borrarToken() {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+  }
+
   actualizarBadgeNivel();
 
   idiomaBotones.forEach((btn) => {
@@ -109,15 +128,53 @@
     });
   });
 
+  if (getToken()) {
+    mostrarPantalla('inicio');
+  } else {
+    mostrarPantalla('login');
+  }
+
+  btnEntrar.addEventListener('click', async () => {
+    const usuario = inputUsuario.value.trim();
+    const clave = inputClave.value;
+    if (!usuario || !clave) {
+      mostrarError('Escribe tu usuario y tu clave.');
+      return;
+    }
+    ocultarError();
+    mostrarCargando(true);
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuario, clave })
+      });
+      const datos = await res.json();
+      if (!res.ok) throw new Error(datos.error || 'Usuario o clave incorrectos.');
+      guardarToken(datos.token);
+      inputClave.value = '';
+      mostrarPantalla('inicio');
+    } catch (err) {
+      mostrarError(err.message || 'No pude iniciar sesión. Intenta de nuevo.');
+    } finally {
+      mostrarCargando(false);
+    }
+  });
+
   async function llamarTutor(mensaje) {
     ocultarError();
     mostrarCargando(true);
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-app-token': getToken() },
         body: JSON.stringify({ historial, mensaje })
       });
+      if (res.status === 401) {
+        borrarToken();
+        mostrarPantalla('login');
+        throw new Error('Tu sesión expiró. Inicia sesión de nuevo.');
+      }
       const datos = await res.json();
       if (!res.ok) {
         throw new Error(datos.error || 'Algo salió mal.');
@@ -229,9 +286,14 @@
     try {
       const res = await fetch('/api/explicar-palabra', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-app-token': getToken() },
         body: JSON.stringify({ palabra, contexto: textoActual, idioma: idiomaActual })
       });
+      if (res.status === 401) {
+        borrarToken();
+        mostrarPantalla('login');
+        throw new Error('Sesión expirada.');
+      }
       const datos = await res.json();
       if (!res.ok) throw new Error(datos.error || 'No pude explicar esa palabra.');
       modalCuerpo.textContent = datos.explicacion;

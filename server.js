@@ -1,15 +1,36 @@
 require('dotenv').config();
+const crypto = require('crypto');
 const express = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-5';
+const APP_USER = process.env.APP_USER || 'lecto';
+const APP_PASSWORD = process.env.APP_PASSWORD || 'Lecto2026!';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+const sesionesValidas = new Set();
+
+function requiereLogin(req, res, next) {
+  const token = req.headers['x-app-token'];
+  if (token && sesionesValidas.has(token)) return next();
+  return res.status(401).json({ error: 'Sesion no valida. Inicia sesion de nuevo.' });
+}
+
 app.use(express.json());
 app.use(express.static('public'));
+
+app.post('/api/login', (req, res) => {
+  const { usuario, clave } = req.body || {};
+  if (usuario === APP_USER && clave === APP_PASSWORD) {
+    const token = crypto.randomBytes(24).toString('hex');
+    sesionesValidas.add(token);
+    return res.json({ token });
+  }
+  return res.status(401).json({ error: 'Usuario o clave incorrectos.' });
+});
 
 const SYSTEM_PROMPT = `Eres "Lecto", un tutor de lectura y comprension muy amigable, paciente y motivador para ninos de primaria (6 a 12 anos) que hablan espanol.
 
@@ -80,7 +101,7 @@ function tutorStepToAssistantText(step) {
   return parts.join('\n');
 }
 
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', requiereLogin, async (req, res) => {
   try {
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({ error: 'Falta configurar ANTHROPIC_API_KEY en el servidor.' });
@@ -130,7 +151,7 @@ const IDIOMAS_EXPLICACION = {
   ingles: 'inglés (English)'
 };
 
-app.post('/api/explicar-palabra', async (req, res) => {
+app.post('/api/explicar-palabra', requiereLogin, async (req, res) => {
   try {
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({ error: 'Falta configurar ANTHROPIC_API_KEY en el servidor.' });

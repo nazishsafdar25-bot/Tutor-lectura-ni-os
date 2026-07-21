@@ -530,6 +530,20 @@ body {
 
     <main class="tarjeta" id="tarjeta-principal">
 
+      <!-- PANTALLA DE LOGIN -->
+      <section id="pantalla-login" class="pantalla oculta">
+        <p class="mensaje-tutor">
+          <span class="burbuja">
+            ¡Hola! Soy Lecto 🦉. Esta app es solo para familias invitadas. Ingresa tu usuario y clave para entrar.
+          </span>
+        </p>
+        <label class="etiqueta" for="input-usuario">Usuario</label>
+        <input id="input-usuario" type="text" placeholder="Tu usuario" autocomplete="username" />
+        <label class="etiqueta" for="input-clave">Clave</label>
+        <input id="input-clave" type="password" placeholder="Tu clave" autocomplete="current-password" />
+        <button id="btn-entrar" class="btn btn-primario btn-ancho" type="button">🔓 Entrar</button>
+      </section>
+
       <!-- PANTALLA DE CLAVE DE API -->
       <section id="pantalla-clave" class="pantalla oculta">
         <p class="mensaje-tutor">
@@ -634,6 +648,14 @@ body {
 
   <script>
   (() => {
+    // Cambia estos dos valores por el usuario/clave que le des a tus familias invitadas.
+    // Nota: como este archivo no tiene servidor, esto NO es seguridad real (cualquiera
+    // que abra el archivo con un editor de texto puede leer estos valores). Solo sirve
+    // como un filtro simple para que gente al azar no use tu clave de API por accidente.
+    const APP_USER = 'lecto';
+    const APP_PASSWORD = 'Lecto2026!';
+    const LOGIN_STORAGE_KEY = 'lecto_logueado';
+
     const MODEL = 'claude-sonnet-5';
     const API_URL = 'https://api.anthropic.com/v1/messages';
     const API_KEY_STORAGE_KEY = 'lecto_api_key';
@@ -796,6 +818,7 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
 
     // ---- UI ----
     const pantallas = {
+      login: document.getElementById('pantalla-login'),
       clave: document.getElementById('pantalla-clave'),
       inicio: document.getElementById('pantalla-inicio'),
       lectura: document.getElementById('pantalla-lectura'),
@@ -805,6 +828,10 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
     const cargando = document.getElementById('cargando');
     const errorBox = document.getElementById('error-box');
     const errorMensaje = document.getElementById('error-mensaje');
+
+    const inputUsuario = document.getElementById('input-usuario');
+    const inputClave = document.getElementById('input-clave');
+    const btnEntrar = document.getElementById('btn-entrar');
 
     const inputApiKey = document.getElementById('input-api-key');
     const btnGuardarClave = document.getElementById('btn-guardar-clave');
@@ -910,12 +937,37 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
       });
     });
 
-    // Pantalla inicial: pedir clave si no existe todavia
-    if (getApiKey()) {
-      mostrarPantalla('inicio');
-    } else {
-      mostrarPantalla('clave');
+    function estaLogueado() {
+      return localStorage.getItem(LOGIN_STORAGE_KEY) === 'si';
     }
+
+    function pantallaDespuesDeLogin() {
+      if (getApiKey()) {
+        mostrarPantalla('inicio');
+      } else {
+        mostrarPantalla('clave');
+      }
+    }
+
+    // Pantalla inicial: primero login, luego clave de API si hace falta
+    if (estaLogueado()) {
+      pantallaDespuesDeLogin();
+    } else {
+      mostrarPantalla('login');
+    }
+
+    btnEntrar.addEventListener('click', () => {
+      const usuario = inputUsuario.value.trim();
+      const clave = inputClave.value;
+      if (usuario === APP_USER && clave === APP_PASSWORD) {
+        localStorage.setItem(LOGIN_STORAGE_KEY, 'si');
+        inputClave.value = '';
+        ocultarError();
+        pantallaDespuesDeLogin();
+      } else {
+        mostrarError('Usuario o clave incorrectos.');
+      }
+    });
 
     btnGuardarClave.addEventListener('click', () => {
       const clave = inputApiKey.value.trim();

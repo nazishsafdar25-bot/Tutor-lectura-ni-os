@@ -20,8 +20,22 @@
 
     <main class="tarjeta" id="tarjeta-principal">
 
+      <!-- PANTALLA DE LOGIN -->
+      <section id="pantalla-login" class="pantalla">
+        <p class="mensaje-tutor">
+          <span class="burbuja">
+            ¡Hola! Soy Lecto 🦉. Esta app es solo para familias invitadas. Ingresa tu usuario y clave para entrar.
+          </span>
+        </p>
+        <label class="etiqueta" for="input-usuario">Usuario</label>
+        <input id="input-usuario" type="text" placeholder="Tu usuario" autocomplete="username" />
+        <label class="etiqueta" for="input-clave">Clave</label>
+        <input id="input-clave" type="password" placeholder="Tu clave" autocomplete="current-password" />
+        <button id="btn-entrar" class="btn btn-primario btn-ancho" type="button">🔓 Entrar</button>
+      </section>
+
       <!-- PANTALLA DE INICIO -->
-      <section id="pantalla-inicio" class="pantalla">
+      <section id="pantalla-inicio" class="pantalla oculta">
         <p class="mensaje-tutor">
           <span class="burbuja">
             ¡Hola! Soy Lecto 🦉. Vamos a leer un cuento juntos y luego hablamos de él. ¿Sobre qué te gustaría leer?
