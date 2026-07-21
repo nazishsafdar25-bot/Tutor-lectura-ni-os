@@ -97,13 +97,45 @@
   let preguntasTotales = 4;
 
   const VOCES_IDIOMA = { catalan: 'ca-ES', castellano: 'es-ES', ingles: 'en-US' };
+  const PISTAS_VOZ_NATURAL = ['neural', 'enhanced', 'premium', 'natural', 'google', 'wavenet', 'siri'];
+
+  let vocesDisponibles = [];
+  function cargarVoces() {
+    vocesDisponibles = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+  }
+  if ('speechSynthesis' in window) {
+    cargarVoces();
+    window.speechSynthesis.onvoiceschanged = cargarVoces;
+  }
+
+  function elegirMejorVoz(idiomaCodigo) {
+    const prefijoIdioma = (VOCES_IDIOMA[idiomaCodigo] || 'es-ES').split('-')[0];
+    const candidatas = vocesDisponibles.filter((v) => v.lang && v.lang.toLowerCase().startsWith(prefijoIdioma));
+    if (candidatas.length === 0) return null;
+    candidatas.sort((a, b) => {
+      const puntuar = (v) => {
+        const nombre = v.name.toLowerCase();
+        const i = PISTAS_VOZ_NATURAL.findIndex((pista) => nombre.includes(pista));
+        return i === -1 ? 99 : i;
+      };
+      return puntuar(a) - puntuar(b);
+    });
+    return candidatas[0];
+  }
 
   function hablar(texto) {
     if (!texto || !('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(texto);
-    utter.lang = VOCES_IDIOMA[idiomaActual] || 'es-ES';
-    utter.rate = 0.9;
+    const voz = elegirMejorVoz(idiomaActual);
+    if (voz) {
+      utter.voice = voz;
+      utter.lang = voz.lang;
+    } else {
+      utter.lang = VOCES_IDIOMA[idiomaActual] || 'es-ES';
+    }
+    utter.rate = 1;
+    utter.pitch = 1;
     window.speechSynthesis.speak(utter);
   }
 
