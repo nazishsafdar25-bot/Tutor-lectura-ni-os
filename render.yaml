@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: lecto-tutor-lectura
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: CLAUDE_MODEL
+        value: claude-sonnet-5
+      - key: APP_USER
+        value: lecto
+      - key: APP_PASSWORD
+        sync: false

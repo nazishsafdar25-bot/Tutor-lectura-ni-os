@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Prototipo de tutor de lectura y comprension para ninos, con la API de Claude",
   "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "node server.js"
   },
