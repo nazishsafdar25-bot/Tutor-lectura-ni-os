@@ -117,6 +117,56 @@ body {
   border-color: var(--azul);
 }
 
+.modo-selector {
+  margin-top: 4px;
+}
+
+.modo-botones {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.modo-btn {
+  flex: 1;
+  min-width: 140px;
+  padding: 12px 10px;
+  border-radius: 14px;
+  border: 2px solid #dbe6ec;
+  background: #fff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  color: #557;
+  transition: transform 0.1s ease, border-color 0.15s ease;
+}
+
+.modo-btn.activo {
+  border-color: var(--verde);
+  background: #e9faf1;
+  color: #1c6b45;
+}
+
+.modo-btn:active {
+  transform: scale(0.97);
+}
+
+.dictado-caja {
+  background: var(--gris-claro);
+  border-radius: 18px;
+  padding: 18px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.dictado-caja .pista {
+  margin-bottom: 4px;
+}
+
 .idioma-selector {
   margin-top: 4px;
 }

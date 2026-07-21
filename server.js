@@ -49,7 +49,12 @@ Como funciona la sesion (en este orden):
      - si quedan mas preguntas, haz la siguiente pregunta (tipo "pregunta", con el numero_pregunta correspondiente).
      - si era la ultima pregunta, pasa a tipo "feedback_final".
    - Si la respuesta es incorrecta, o el nino dice que no sabe o no entiende: usa tipo "aclaracion". Explica la idea del texto relacionada con palabras MUY simples, con un ejemplo facil o una comparacion sencilla, sin usar palabras dificiles ni la respuesta directa todavia. Termina animandolo a intentar de nuevo, y vuelve a preguntar lo mismo de forma mas simple (puedes repetir la pregunta reformulada dentro del mismo texto de aclaracion). No avances a la siguiente pregunta hasta que responda razonablemente bien esa pregunta (dale como maximo 2 intentos de aclaracion por pregunta; si en el tercer intento sigue sin poder, dile la respuesta con mucho carino, sin hacerlo sentir mal, y avanza).
-4. FEEDBACK FINAL: tipo "feedback_final". Da un mensaje breve, positivo y motivador. Resalta algo que el nino hizo bien (su esfuerzo, su lectura, algo que respondio bien). Nunca lo hagas sentir mal aunque se haya equivocado varias veces. Invitalo a leer otro texto pronto. Ademas, evalua el desempeno general de esta sesion (cuantas preguntas necesitaron aclaracion, cuantas respondio bien a la primera) y decide en "nivel_sugerido" si el proximo texto deberia subir de dificultad ("subir") o mantenerse igual ("igual"). IMPORTANTE: la dificultad nunca debe bajar, solo mantenerse o subir; usa "subir" solo si respondio bien a la primera en casi todas las preguntas, y "igual" en cualquier otro caso (incluso si le costo bastante) para que el nino siga practicando en el mismo nivel sin sentir que retrocede.
+4. FEEDBACK FINAL: tipo "feedback_final". Da un mensaje breve, positivo y motivador. Resalta algo que el nino hizo bien (su esfuerzo, su lectura, algo que respondio bien). Nunca lo hagas sentir mal aunque se haya equivocado varias veces. Invitalo a leer otro texto pronto. Ademas, evalua el desempeno general de esta sesion (cuantas preguntas necesitaron aclaracion, cuantas respondio bien a la primera, o en modo dictado cuantas palabras escribio bien) y decide en "nivel_sugerido" si el proximo texto deberia subir de dificultad ("subir") o mantenerse igual ("igual"). IMPORTANTE: la dificultad nunca debe bajar, solo mantenerse o subir; usa "subir" solo si le fue muy bien (respondio bien a la primera en casi todas las preguntas, o escribio bien casi todas las palabras del dictado), y "igual" en cualquier otro caso (incluso si le costo bastante) para que el nino siga practicando en el mismo nivel sin sentir que retrocede.
+
+MODO DICTADO (cuando el nino pida practicar "dictado" en vez de "lectura"):
+5. DICTADO ITEM: genera 5 palabras o frases muy cortas (entre 2 y 6 palabras) para dictado, adaptadas al nivel y al idioma indicados, relacionadas con la categoria si se dio una (o variadas si no). Dalas de una en una. Usa tipo "dictado_item". El campo "texto" debe contener EXACTAMENTE la palabra o frase que el nino tiene que escuchar y escribir (no reveles la ortografia de ninguna otra forma en ese mismo paso, ni la repitas en otro campo). "numero_pregunta" es el numero del item actual (desde 1) y "preguntas_totales" es 5.
+6. DICTADO RESULTADO: cuando el nino envie lo que escribio, compara con la palabra/frase correcta (ignora mayusculas/minusculas y espacios de mas al inicio o final, pero SI toma en cuenta tildes y ortografia exacta). Usa tipo "dictado_resultado": si esta bien, felicitalo brevemente y confirma la palabra correcta. Si tiene errores, explica con mucho carino que letra, tilde o parte le falto o le sobro, y muestra la forma correcta completa. Pon en "numero_pregunta" el numero del item que acabas de evaluar.
+7. Cuando el nino escriba algo pidiendo continuar (ej. "siguiente") despues de un "dictado_resultado": si quedan items, da el siguiente "dictado_item" (numero_pregunta correspondiente); si era el ultimo (item 5), pasa a "feedback_final" evaluando el desempeno en el dictado, igual que en el modo lectura.
 
 Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No incluyas nada fuera de la herramienta.`;
 
@@ -61,7 +66,7 @@ const TUTOR_TOOL = {
     properties: {
       tipo: {
         type: 'string',
-        enum: ['lectura', 'pregunta', 'aclaracion', 'feedback_final'],
+        enum: ['lectura', 'pregunta', 'aclaracion', 'dictado_item', 'dictado_resultado', 'feedback_final'],
         description: 'El tipo de paso actual de la sesion.'
       },
       titulo: {
@@ -70,7 +75,7 @@ const TUTOR_TOOL = {
       },
       texto: {
         type: 'string',
-        description: 'El mensaje principal en espanol sencillo que se muestra al nino: el texto de lectura, la pregunta, la aclaracion o el feedback final.'
+        description: 'El mensaje principal en espanol sencillo que se muestra al nino: el texto de lectura, la pregunta, la aclaracion, el feedback final, o en modo dictado la palabra/frase exacta a dictar (dictado_item) o el resultado de la evaluacion (dictado_resultado).'
       },
       emoji: {
         type: 'string',
@@ -78,11 +83,11 @@ const TUTOR_TOOL = {
       },
       preguntas_totales: {
         type: 'integer',
-        description: 'Numero total de preguntas de comprension planeadas para esta lectura (4 o 5). Se define en el paso de tipo lectura.'
+        description: 'Numero total de preguntas de comprension (4 o 5) o de items de dictado (5). Se define en el paso de tipo lectura o dictado_item.'
       },
       numero_pregunta: {
         type: 'integer',
-        description: 'Numero (desde 1) de la pregunta actual. Se usa en los tipos pregunta y aclaracion.'
+        description: 'Numero (desde 1) de la pregunta o item de dictado actual. Se usa en los tipos pregunta, aclaracion, dictado_item y dictado_resultado.'
       },
       nivel_sugerido: {
         type: 'string',

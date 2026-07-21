@@ -4,6 +4,7 @@
     inicio: document.getElementById('pantalla-inicio'),
     lectura: document.getElementById('pantalla-lectura'),
     preguntas: document.getElementById('pantalla-preguntas'),
+    dictado: document.getElementById('pantalla-dictado'),
     final: document.getElementById('pantalla-final')
   };
   const cargando = document.getElementById('cargando');
@@ -14,6 +15,8 @@
   const inputClave = document.getElementById('input-clave');
   const btnEntrar = document.getElementById('btn-entrar');
 
+  const modoBotones = document.querySelectorAll('.modo-btn');
+  const etiquetaTema = document.getElementById('etiqueta-tema');
   const idiomaBotones = document.querySelectorAll('.idioma-btn');
   const inputTema = document.getElementById('input-tema');
   const nivelBadge = document.getElementById('nivel-badge');
@@ -32,6 +35,13 @@
   const formRespuesta = document.getElementById('form-respuesta');
   const inputRespuesta = document.getElementById('input-respuesta');
   const textoFinalEl = document.getElementById('texto-final');
+
+  const progresoDictadoEl = document.getElementById('progreso-dictado');
+  const chatDictadoEl = document.getElementById('chat-dictado');
+  const formDictado = document.getElementById('form-dictado');
+  const inputDictado = document.getElementById('input-dictado');
+  const btnEscuchar = document.getElementById('btn-escuchar');
+  const btnRepetir = document.getElementById('btn-repetir');
 
   const modal = document.getElementById('modal-palabra');
   const modalTitulo = document.getElementById('modal-palabra-titulo');
@@ -79,10 +89,23 @@
 
   let idiomaActual = cargarIdioma();
   let nivelIndex = cargarNivelIndex();
+  let modoActual = 'lectura';
   let historial = [];
   let ultimaAccion = null;
   let textoActual = '';
+  let dictadoTextoActual = '';
   let preguntasTotales = 4;
+
+  const VOCES_IDIOMA = { catalan: 'ca-ES', castellano: 'es-ES', ingles: 'en-US' };
+
+  function hablar(texto) {
+    if (!texto || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(texto);
+    utter.lang = VOCES_IDIOMA[idiomaActual] || 'es-ES';
+    utter.rate = 0.9;
+    window.speechSynthesis.speak(utter);
+  }
 
   function mostrarPantalla(nombre) {
     Object.values(pantallas).forEach((p) => p.classList.add('oculta'));
@@ -127,6 +150,27 @@
       idiomaBotones.forEach((b) => b.classList.toggle('activo', b === btn));
     });
   });
+
+  function actualizarTextosModo() {
+    if (modoActual === 'dictado') {
+      btnEmpezar.textContent = '✍️ ¡Empezar dictado!';
+      etiquetaTema.textContent = 'Categoría de palabras (opcional)';
+      inputTema.placeholder = 'Ej: animales, colores, la casa...';
+    } else {
+      btnEmpezar.textContent = '📖 ¡Empezar a leer!';
+      etiquetaTema.textContent = 'Un tema (opcional)';
+      inputTema.placeholder = 'Ej: dinosaurios, el mar, mi mascota...';
+    }
+  }
+
+  modoBotones.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      modoActual = btn.dataset.modo;
+      modoBotones.forEach((b) => b.classList.toggle('activo', b === btn));
+      actualizarTextosModo();
+    });
+  });
+  actualizarTextosModo();
 
   if (getToken()) {
     mostrarPantalla('inicio');
@@ -200,11 +244,32 @@
     }
 
     if (paso.tipo === 'pregunta' || paso.tipo === 'aclaracion') {
-      agregarMensajeChat('tutor', paso.texto, paso.emoji, paso.tipo === 'aclaracion');
-      actualizarProgreso(paso.numero_pregunta);
+      agregarMensajeChat(chatEl, 'tutor', paso.texto, paso.emoji, paso.tipo === 'aclaracion');
+      actualizarProgreso(progresoEl, paso.numero_pregunta, preguntasTotales);
       mostrarPantalla('preguntas');
       inputRespuesta.disabled = false;
       inputRespuesta.focus();
+      return;
+    }
+
+    if (paso.tipo === 'dictado_item') {
+      dictadoTextoActual = paso.texto;
+      actualizarProgreso(progresoDictadoEl, paso.numero_pregunta, preguntasTotales);
+      mostrarPantalla('dictado');
+      inputDictado.disabled = false;
+      inputDictado.value = '';
+      inputDictado.focus();
+      return;
+    }
+
+    if (paso.tipo === 'dictado_resultado') {
+      agregarMensajeChat(chatDictadoEl, 'tutor', paso.texto, paso.emoji, false);
+      actualizarProgreso(progresoDictadoEl, paso.numero_pregunta, preguntasTotales);
+      mostrarPantalla('dictado');
+      inputDictado.disabled = true;
+      const mensajeSiguiente = 'Siguiente, por favor.';
+      ultimaAccion = () => llamarTutor(mensajeSiguiente);
+      setTimeout(() => llamarTutor(mensajeSiguiente), 1400);
       return;
     }
 
@@ -253,7 +318,7 @@
     });
   }
 
-  function agregarMensajeChat(quien, texto, emoji, esAclaracion) {
+  function agregarMensajeChat(elemento, quien, texto, emoji, esAclaracion) {
     const msg = document.createElement('div');
     msg.className = 'msg ' + (quien === 'tutor' ? 'tutor' : 'nino') + (esAclaracion ? ' aclaracion' : '');
     const avatar = document.createElement('div');
@@ -264,18 +329,18 @@
     contenido.textContent = (emoji ? emoji + ' ' : '') + texto;
     msg.appendChild(avatar);
     msg.appendChild(contenido);
-    chatEl.appendChild(msg);
-    chatEl.scrollTop = chatEl.scrollHeight;
+    elemento.appendChild(msg);
+    elemento.scrollTop = elemento.scrollHeight;
   }
 
-  function actualizarProgreso(numeroPregunta) {
-    progresoEl.innerHTML = '';
-    for (let i = 1; i <= preguntasTotales; i++) {
+  function actualizarProgreso(elemento, numeroActual, total) {
+    elemento.innerHTML = '';
+    for (let i = 1; i <= total; i++) {
       const punto = document.createElement('div');
       punto.className = 'punto';
-      if (numeroPregunta && i < numeroPregunta) punto.classList.add('hecho');
-      if (numeroPregunta && i === numeroPregunta) punto.classList.add('actual');
-      progresoEl.appendChild(punto);
+      if (numeroActual && i < numeroActual) punto.classList.add('hecho');
+      if (numeroActual && i === numeroActual) punto.classList.add('actual');
+      elemento.appendChild(punto);
     }
   }
 
@@ -309,14 +374,23 @@
 
   function iniciarSesion(temaTexto) {
     historial = [];
-    preguntasTotales = 4;
+    preguntasTotales = modoActual === 'dictado' ? 5 : 4;
     notaNivelEl.textContent = '';
     const nivelTexto = NIVELES[nivelIndex].desc;
     const idiomaTexto = IDIOMAS[idiomaActual].instruccion;
-    const instruccionIdioma = `Idioma: escribe TODO (titulo, texto, preguntas, aclaraciones y feedback final) en ${idiomaTexto}, sin importar en que idioma te escriba yo.`;
-    const mensaje = temaTexto
-      ? `Quiero leer un texto sobre: ${temaTexto}. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Por favor comienza.`
-      : `Sorpréndeme con un tema divertido para leer. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Por favor comienza.`;
+    const instruccionIdioma = `Idioma: escribe TODO (titulo, texto, preguntas, aclaraciones, items de dictado y feedback final) en ${idiomaTexto}, sin importar en que idioma te escriba yo.`;
+    let mensaje;
+    if (modoActual === 'dictado') {
+      chatDictadoEl.innerHTML = '';
+      progresoDictadoEl.innerHTML = '';
+      mensaje = temaTexto
+        ? `Quiero practicar dictado. Categoria de palabras: ${temaTexto}. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Dame el primer item de dictado.`
+        : `Quiero practicar dictado con palabras variadas. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Dame el primer item de dictado.`;
+    } else {
+      mensaje = temaTexto
+        ? `Quiero leer un texto sobre: ${temaTexto}. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Por favor comienza.`
+        : `Sorpréndeme con un tema divertido para leer. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Por favor comienza.`;
+    }
     ultimaAccion = () => iniciarSesion(temaTexto);
     llamarTutor(mensaje);
   }
@@ -347,9 +421,23 @@
     e.preventDefault();
     const respuesta = inputRespuesta.value.trim();
     if (!respuesta) return;
-    agregarMensajeChat('nino', respuesta);
+    agregarMensajeChat(chatEl, 'nino', respuesta);
     inputRespuesta.value = '';
     inputRespuesta.disabled = true;
+    ultimaAccion = () => llamarTutor(respuesta);
+    llamarTutor(respuesta);
+  });
+
+  btnEscuchar.addEventListener('click', () => hablar(dictadoTextoActual));
+  btnRepetir.addEventListener('click', () => hablar(dictadoTextoActual));
+
+  formDictado.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const respuesta = inputDictado.value.trim();
+    if (!respuesta) return;
+    agregarMensajeChat(chatDictadoEl, 'nino', respuesta);
+    inputDictado.value = '';
+    inputDictado.disabled = true;
     ultimaAccion = () => llamarTutor(respuesta);
     llamarTutor(respuesta);
   });

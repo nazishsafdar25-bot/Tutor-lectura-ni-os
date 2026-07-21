@@ -126,6 +126,56 @@ body {
   border-color: var(--azul);
 }
 
+.modo-selector {
+  margin-top: 4px;
+}
+
+.modo-botones {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.modo-btn {
+  flex: 1;
+  min-width: 140px;
+  padding: 12px 10px;
+  border-radius: 14px;
+  border: 2px solid #dbe6ec;
+  background: #fff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  color: #557;
+  transition: transform 0.1s ease, border-color 0.15s ease;
+}
+
+.modo-btn.activo {
+  border-color: var(--verde);
+  background: #e9faf1;
+  color: #1c6b45;
+}
+
+.modo-btn:active {
+  transform: scale(0.97);
+}
+
+.dictado-caja {
+  background: var(--gris-claro);
+  border-radius: 18px;
+  padding: 18px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.dictado-caja .pista {
+  margin-bottom: 4px;
+}
+
 .idioma-selector {
   margin-top: 4px;
 }
@@ -565,8 +615,16 @@ body {
           </span>
         </p>
 
+        <div class="modo-selector">
+          <span class="etiqueta">¿Qué quieres practicar?</span>
+          <div class="modo-botones">
+            <button class="modo-btn activo" data-modo="lectura" type="button">📖 Leer un cuento</button>
+            <button class="modo-btn" data-modo="dictado" type="button">✍️ Practicar dictado</button>
+          </div>
+        </div>
+
         <div class="idioma-selector">
-          <span class="etiqueta">Idioma de la lectura:</span>
+          <span class="etiqueta">Idioma:</span>
           <div class="idioma-botones">
             <button class="idioma-btn" data-idioma="catalan" type="button">🟡 Català</button>
             <button class="idioma-btn activo" data-idioma="castellano" type="button">🔴 Castellano</button>
@@ -574,7 +632,7 @@ body {
           </div>
         </div>
 
-        <label class="etiqueta" for="input-tema">Un tema (opcional)</label>
+        <label class="etiqueta" for="input-tema" id="etiqueta-tema">Un tema (opcional)</label>
         <input id="input-tema" type="text" placeholder="Ej: dinosaurios, el mar, mi mascota..." maxlength="60" />
 
         <div class="nivel-indicador">
@@ -606,6 +664,21 @@ body {
         <div id="chat" class="chat" aria-live="polite"></div>
         <form id="form-respuesta" class="form-respuesta">
           <input id="input-respuesta" type="text" placeholder="Escribe tu respuesta..." autocomplete="off" />
+          <button type="submit" class="btn btn-primario btn-enviar">➤</button>
+        </form>
+      </section>
+
+      <!-- PANTALLA DE DICTADO -->
+      <section id="pantalla-dictado" class="pantalla oculta">
+        <div class="progreso" id="progreso-dictado"></div>
+        <div class="dictado-caja">
+          <p class="pista">👂 Escucha con atención y escribe lo que oyes</p>
+          <button id="btn-escuchar" class="btn btn-primario btn-ancho" type="button">🔊 Escuchar</button>
+          <button id="btn-repetir" class="btn-enlace" type="button">🔁 Repetir</button>
+        </div>
+        <div id="chat-dictado" class="chat" aria-live="polite"></div>
+        <form id="form-dictado" class="form-respuesta">
+          <input id="input-dictado" type="text" placeholder="Escribe lo que escuchaste..." autocomplete="off" />
           <button type="submit" class="btn btn-primario btn-enviar">➤</button>
         </form>
       </section>
@@ -677,7 +750,12 @@ Como funciona la sesion (en este orden):
      - si quedan mas preguntas, haz la siguiente pregunta (tipo "pregunta", con el numero_pregunta correspondiente).
      - si era la ultima pregunta, pasa a tipo "feedback_final".
    - Si la respuesta es incorrecta, o el nino dice que no sabe o no entiende: usa tipo "aclaracion". Explica la idea del texto relacionada con palabras MUY simples, con un ejemplo facil o una comparacion sencilla, sin usar palabras dificiles ni la respuesta directa todavia. Termina animandolo a intentar de nuevo, y vuelve a preguntar lo mismo de forma mas simple (puedes repetir la pregunta reformulada dentro del mismo texto de aclaracion). No avances a la siguiente pregunta hasta que responda razonablemente bien esa pregunta (dale como maximo 2 intentos de aclaracion por pregunta; si en el tercer intento sigue sin poder, dile la respuesta con mucho carino, sin hacerlo sentir mal, y avanza).
-4. FEEDBACK FINAL: tipo "feedback_final". Da un mensaje breve, positivo y motivador. Resalta algo que el nino hizo bien (su esfuerzo, su lectura, algo que respondio bien). Nunca lo hagas sentir mal aunque se haya equivocado varias veces. Invitalo a leer otro texto pronto. Ademas, evalua el desempeno general de esta sesion (cuantas preguntas necesitaron aclaracion, cuantas respondio bien a la primera) y decide en "nivel_sugerido" si el proximo texto deberia subir de dificultad ("subir") o mantenerse igual ("igual"). IMPORTANTE: la dificultad nunca debe bajar, solo mantenerse o subir; usa "subir" solo si respondio bien a la primera en casi todas las preguntas, y "igual" en cualquier otro caso (incluso si le costo bastante) para que el nino siga practicando en el mismo nivel sin sentir que retrocede.
+4. FEEDBACK FINAL: tipo "feedback_final". Da un mensaje breve, positivo y motivador. Resalta algo que el nino hizo bien (su esfuerzo, su lectura, algo que respondio bien). Nunca lo hagas sentir mal aunque se haya equivocado varias veces. Invitalo a leer otro texto pronto. Ademas, evalua el desempeno general de esta sesion (cuantas preguntas necesitaron aclaracion, cuantas respondio bien a la primera, o en modo dictado cuantas palabras escribio bien) y decide en "nivel_sugerido" si el proximo texto deberia subir de dificultad ("subir") o mantenerse igual ("igual"). IMPORTANTE: la dificultad nunca debe bajar, solo mantenerse o subir; usa "subir" solo si le fue muy bien (respondio bien a la primera en casi todas las preguntas, o escribio bien casi todas las palabras del dictado), y "igual" en cualquier otro caso (incluso si le costo bastante) para que el nino siga practicando en el mismo nivel sin sentir que retrocede.
+
+MODO DICTADO (cuando el nino pida practicar "dictado" en vez de "lectura"):
+5. DICTADO ITEM: genera 5 palabras o frases muy cortas (entre 2 y 6 palabras) para dictado, adaptadas al nivel y al idioma indicados, relacionadas con la categoria si se dio una (o variadas si no). Dalas de una en una. Usa tipo "dictado_item". El campo "texto" debe contener EXACTAMENTE la palabra o frase que el nino tiene que escuchar y escribir (no reveles la ortografia de ninguna otra forma en ese mismo paso, ni la repitas en otro campo). "numero_pregunta" es el numero del item actual (desde 1) y "preguntas_totales" es 5.
+6. DICTADO RESULTADO: cuando el nino envie lo que escribio, compara con la palabra/frase correcta (ignora mayusculas/minusculas y espacios de mas al inicio o final, pero SI toma en cuenta tildes y ortografia exacta). Usa tipo "dictado_resultado": si esta bien, felicitalo brevemente y confirma la palabra correcta. Si tiene errores, explica con mucho carino que letra, tilde o parte le falto o le sobro, y muestra la forma correcta completa. Pon en "numero_pregunta" el numero del item que acabas de evaluar.
+7. Cuando el nino escriba algo pidiendo continuar (ej. "siguiente") despues de un "dictado_resultado": si quedan items, da el siguiente "dictado_item" (numero_pregunta correspondiente); si era el ultimo (item 5), pasa a "feedback_final" evaluando el desempeno en el dictado, igual que en el modo lectura.
 
 Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No incluyas nada fuera de la herramienta.`;
 
@@ -689,7 +767,7 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
         properties: {
           tipo: {
             type: 'string',
-            enum: ['lectura', 'pregunta', 'aclaracion', 'feedback_final'],
+            enum: ['lectura', 'pregunta', 'aclaracion', 'dictado_item', 'dictado_resultado', 'feedback_final'],
             description: 'El tipo de paso actual de la sesion.'
           },
           titulo: {
@@ -698,7 +776,7 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
           },
           texto: {
             type: 'string',
-            description: 'El mensaje principal en espanol sencillo que se muestra al nino: el texto de lectura, la pregunta, la aclaracion o el feedback final.'
+            description: 'El mensaje principal en espanol sencillo que se muestra al nino: el texto de lectura, la pregunta, la aclaracion, el feedback final, o en modo dictado la palabra/frase exacta a dictar (dictado_item) o el resultado de la evaluacion (dictado_resultado).'
           },
           emoji: {
             type: 'string',
@@ -706,11 +784,11 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
           },
           preguntas_totales: {
             type: 'integer',
-            description: 'Numero total de preguntas de comprension planeadas para esta lectura (4 o 5). Se define en el paso de tipo lectura.'
+            description: 'Numero total de preguntas de comprension (4 o 5) o de items de dictado (5). Se define en el paso de tipo lectura o dictado_item.'
           },
           numero_pregunta: {
             type: 'integer',
-            description: 'Numero (desde 1) de la pregunta actual. Se usa en los tipos pregunta y aclaracion.'
+            description: 'Numero (desde 1) de la pregunta o item de dictado actual. Se usa en los tipos pregunta, aclaracion, dictado_item y dictado_resultado.'
           },
           nivel_sugerido: {
             type: 'string',
@@ -823,6 +901,7 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
       inicio: document.getElementById('pantalla-inicio'),
       lectura: document.getElementById('pantalla-lectura'),
       preguntas: document.getElementById('pantalla-preguntas'),
+      dictado: document.getElementById('pantalla-dictado'),
       final: document.getElementById('pantalla-final')
     };
     const cargando = document.getElementById('cargando');
@@ -837,6 +916,8 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
     const btnGuardarClave = document.getElementById('btn-guardar-clave');
     const btnCambiarClave = document.getElementById('btn-cambiar-clave');
 
+    const modoBotones = document.querySelectorAll('.modo-btn');
+    const etiquetaTema = document.getElementById('etiqueta-tema');
     const idiomaBotones = document.querySelectorAll('.idioma-btn');
     const inputTema = document.getElementById('input-tema');
     const nivelBadge = document.getElementById('nivel-badge');
@@ -855,6 +936,13 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
     const formRespuesta = document.getElementById('form-respuesta');
     const inputRespuesta = document.getElementById('input-respuesta');
     const textoFinalEl = document.getElementById('texto-final');
+
+    const progresoDictadoEl = document.getElementById('progreso-dictado');
+    const chatDictadoEl = document.getElementById('chat-dictado');
+    const formDictado = document.getElementById('form-dictado');
+    const inputDictado = document.getElementById('input-dictado');
+    const btnEscuchar = document.getElementById('btn-escuchar');
+    const btnRepetir = document.getElementById('btn-repetir');
 
     const modal = document.getElementById('modal-palabra');
     const modalTitulo = document.getElementById('modal-palabra-titulo');
@@ -902,10 +990,23 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
 
     let idiomaActual = cargarIdioma();
     let nivelIndex = cargarNivelIndex();
+    let modoActual = 'lectura';
     let historial = [];
     let ultimaAccion = null;
     let textoActual = '';
+    let dictadoTextoActual = '';
     let preguntasTotales = 4;
+
+    const VOCES_IDIOMA = { catalan: 'ca-ES', castellano: 'es-ES', ingles: 'en-US' };
+
+    function hablar(texto) {
+      if (!texto || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(texto);
+      utter.lang = VOCES_IDIOMA[idiomaActual] || 'es-ES';
+      utter.rate = 0.9;
+      window.speechSynthesis.speak(utter);
+    }
 
     function mostrarPantalla(nombre) {
       Object.values(pantallas).forEach((p) => p.classList.add('oculta'));
@@ -936,6 +1037,27 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
         idiomaBotones.forEach((b) => b.classList.toggle('activo', b === btn));
       });
     });
+
+    function actualizarTextosModo() {
+      if (modoActual === 'dictado') {
+        btnEmpezar.textContent = '✍️ ¡Empezar dictado!';
+        etiquetaTema.textContent = 'Categoría de palabras (opcional)';
+        inputTema.placeholder = 'Ej: animales, colores, la casa...';
+      } else {
+        btnEmpezar.textContent = '📖 ¡Empezar a leer!';
+        etiquetaTema.textContent = 'Un tema (opcional)';
+        inputTema.placeholder = 'Ej: dinosaurios, el mar, mi mascota...';
+      }
+    }
+
+    modoBotones.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        modoActual = btn.dataset.modo;
+        modoBotones.forEach((b) => b.classList.toggle('activo', b === btn));
+        actualizarTextosModo();
+      });
+    });
+    actualizarTextosModo();
 
     function estaLogueado() {
       return localStorage.getItem(LOGIN_STORAGE_KEY) === 'si';
@@ -1012,11 +1134,32 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
       }
 
       if (paso.tipo === 'pregunta' || paso.tipo === 'aclaracion') {
-        agregarMensajeChat('tutor', paso.texto, paso.emoji, paso.tipo === 'aclaracion');
-        actualizarProgreso(paso.numero_pregunta);
+        agregarMensajeChat(chatEl, 'tutor', paso.texto, paso.emoji, paso.tipo === 'aclaracion');
+        actualizarProgreso(progresoEl, paso.numero_pregunta, preguntasTotales);
         mostrarPantalla('preguntas');
         inputRespuesta.disabled = false;
         inputRespuesta.focus();
+        return;
+      }
+
+      if (paso.tipo === 'dictado_item') {
+        dictadoTextoActual = paso.texto;
+        actualizarProgreso(progresoDictadoEl, paso.numero_pregunta, preguntasTotales);
+        mostrarPantalla('dictado');
+        inputDictado.disabled = false;
+        inputDictado.value = '';
+        inputDictado.focus();
+        return;
+      }
+
+      if (paso.tipo === 'dictado_resultado') {
+        agregarMensajeChat(chatDictadoEl, 'tutor', paso.texto, paso.emoji, false);
+        actualizarProgreso(progresoDictadoEl, paso.numero_pregunta, preguntasTotales);
+        mostrarPantalla('dictado');
+        inputDictado.disabled = true;
+        const mensajeSiguiente = 'Siguiente, por favor.';
+        ultimaAccion = () => llamarTutor(mensajeSiguiente);
+        setTimeout(() => llamarTutor(mensajeSiguiente), 1400);
         return;
       }
 
@@ -1065,7 +1208,7 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
       });
     }
 
-    function agregarMensajeChat(quien, texto, emoji, esAclaracion) {
+    function agregarMensajeChat(elemento, quien, texto, emoji, esAclaracion) {
       const msg = document.createElement('div');
       msg.className = 'msg ' + (quien === 'tutor' ? 'tutor' : 'nino') + (esAclaracion ? ' aclaracion' : '');
       const avatar = document.createElement('div');
@@ -1076,18 +1219,18 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
       contenido.textContent = (emoji ? emoji + ' ' : '') + texto;
       msg.appendChild(avatar);
       msg.appendChild(contenido);
-      chatEl.appendChild(msg);
-      chatEl.scrollTop = chatEl.scrollHeight;
+      elemento.appendChild(msg);
+      elemento.scrollTop = elemento.scrollHeight;
     }
 
-    function actualizarProgreso(numeroPregunta) {
-      progresoEl.innerHTML = '';
-      for (let i = 1; i <= preguntasTotales; i++) {
+    function actualizarProgreso(elemento, numeroActual, total) {
+      elemento.innerHTML = '';
+      for (let i = 1; i <= total; i++) {
         const punto = document.createElement('div');
         punto.className = 'punto';
-        if (numeroPregunta && i < numeroPregunta) punto.classList.add('hecho');
-        if (numeroPregunta && i === numeroPregunta) punto.classList.add('actual');
-        progresoEl.appendChild(punto);
+        if (numeroActual && i < numeroActual) punto.classList.add('hecho');
+        if (numeroActual && i === numeroActual) punto.classList.add('actual');
+        elemento.appendChild(punto);
       }
     }
 
@@ -1109,14 +1252,23 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
 
     function iniciarSesion(temaTexto) {
       historial = [];
-      preguntasTotales = 4;
+      preguntasTotales = modoActual === 'dictado' ? 5 : 4;
       notaNivelEl.textContent = '';
       const nivelTexto = NIVELES[nivelIndex].desc;
       const idiomaTexto = IDIOMAS[idiomaActual].instruccion;
-      const instruccionIdioma = `Idioma: escribe TODO (titulo, texto, preguntas, aclaraciones y feedback final) en ${idiomaTexto}, sin importar en que idioma te escriba yo.`;
-      const mensaje = temaTexto
-        ? `Quiero leer un texto sobre: ${temaTexto}. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Por favor comienza.`
-        : `Sorpréndeme con un tema divertido para leer. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Por favor comienza.`;
+      const instruccionIdioma = `Idioma: escribe TODO (titulo, texto, preguntas, aclaraciones, items de dictado y feedback final) en ${idiomaTexto}, sin importar en que idioma te escriba yo.`;
+      let mensaje;
+      if (modoActual === 'dictado') {
+        chatDictadoEl.innerHTML = '';
+        progresoDictadoEl.innerHTML = '';
+        mensaje = temaTexto
+          ? `Quiero practicar dictado. Categoria de palabras: ${temaTexto}. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Dame el primer item de dictado.`
+          : `Quiero practicar dictado con palabras variadas. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Dame el primer item de dictado.`;
+      } else {
+        mensaje = temaTexto
+          ? `Quiero leer un texto sobre: ${temaTexto}. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Por favor comienza.`
+          : `Sorpréndeme con un tema divertido para leer. Nivel de dificultad: ${nivelTexto}. ${instruccionIdioma} Por favor comienza.`;
+      }
       ultimaAccion = () => iniciarSesion(temaTexto);
       llamarTutor(mensaje);
     }
@@ -1147,9 +1299,23 @@ Responde SIEMPRE usando la herramienta "tutor_paso" con el paso actual. No inclu
       e.preventDefault();
       const respuesta = inputRespuesta.value.trim();
       if (!respuesta) return;
-      agregarMensajeChat('nino', respuesta);
+      agregarMensajeChat(chatEl, 'nino', respuesta);
       inputRespuesta.value = '';
       inputRespuesta.disabled = true;
+      ultimaAccion = () => llamarTutor(respuesta);
+      llamarTutor(respuesta);
+    });
+
+    btnEscuchar.addEventListener('click', () => hablar(dictadoTextoActual));
+    btnRepetir.addEventListener('click', () => hablar(dictadoTextoActual));
+
+    formDictado.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const respuesta = inputDictado.value.trim();
+      if (!respuesta) return;
+      agregarMensajeChat(chatDictadoEl, 'nino', respuesta);
+      inputDictado.value = '';
+      inputDictado.disabled = true;
       ultimaAccion = () => llamarTutor(respuesta);
       llamarTutor(respuesta);
     });

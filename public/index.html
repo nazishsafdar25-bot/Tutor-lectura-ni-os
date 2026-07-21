@@ -42,8 +42,16 @@
           </span>
         </p>
 
+        <div class="modo-selector">
+          <span class="etiqueta">¿Qué quieres practicar?</span>
+          <div class="modo-botones">
+            <button class="modo-btn activo" data-modo="lectura" type="button">📖 Leer un cuento</button>
+            <button class="modo-btn" data-modo="dictado" type="button">✍️ Practicar dictado</button>
+          </div>
+        </div>
+
         <div class="idioma-selector">
-          <span class="etiqueta">Idioma de la lectura:</span>
+          <span class="etiqueta">Idioma:</span>
           <div class="idioma-botones">
             <button class="idioma-btn" data-idioma="catalan" type="button">🟡 Català</button>
             <button class="idioma-btn activo" data-idioma="castellano" type="button">🔴 Castellano</button>
@@ -51,7 +59,7 @@
           </div>
         </div>
 
-        <label class="etiqueta" for="input-tema">Un tema (opcional)</label>
+        <label class="etiqueta" for="input-tema" id="etiqueta-tema">Un tema (opcional)</label>
         <input id="input-tema" type="text" placeholder="Ej: dinosaurios, el mar, mi mascota..." maxlength="60" />
 
         <div class="nivel-indicador">
@@ -82,6 +90,21 @@
         <div id="chat" class="chat" aria-live="polite"></div>
         <form id="form-respuesta" class="form-respuesta">
           <input id="input-respuesta" type="text" placeholder="Escribe tu respuesta..." autocomplete="off" />
+          <button type="submit" class="btn btn-primario btn-enviar">➤</button>
+        </form>
+      </section>
+
+      <!-- PANTALLA DE DICTADO -->
+      <section id="pantalla-dictado" class="pantalla oculta">
+        <div class="progreso" id="progreso-dictado"></div>
+        <div class="dictado-caja">
+          <p class="pista">👂 Escucha con atención y escribe lo que oyes</p>
+          <button id="btn-escuchar" class="btn btn-primario btn-ancho" type="button">🔊 Escuchar</button>
+          <button id="btn-repetir" class="btn-enlace" type="button">🔁 Repetir</button>
+        </div>
+        <div id="chat-dictado" class="chat" aria-live="polite"></div>
+        <form id="form-dictado" class="form-respuesta">
+          <input id="input-dictado" type="text" placeholder="Escribe lo que escuchaste..." autocomplete="off" />
           <button type="submit" class="btn btn-primario btn-enviar">➤</button>
         </form>
       </section>
