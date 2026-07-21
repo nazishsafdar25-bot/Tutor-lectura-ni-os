@@ -8,14 +8,35 @@ const PORT = process.env.PORT || 3000;
 const MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-5';
 const APP_USER = process.env.APP_USER || 'lecto';
 const APP_PASSWORD = process.env.APP_PASSWORD || 'Lecto2026!';
+const SESSION_SECRET = process.env.SESSION_SECRET || APP_PASSWORD;
+const SESION_DURACION_MS = 30 * 24 * 60 * 60 * 1000; // 30 dias
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const sesionesValidas = new Set();
+// Token con firma (no depende de memoria del servidor): "expira.firma".
+// Asi la sesion sigue valida aunque Render reinicie el servidor por inactividad.
+function firmar(valor) {
+  return crypto.createHmac('sha256', SESSION_SECRET).update(valor).digest('hex');
+}
+
+function crearToken() {
+  const expira = String(Date.now() + SESION_DURACION_MS);
+  return `${expira}.${firmar(expira)}`;
+}
+
+function tokenValido(token) {
+  if (!token || typeof token !== 'string') return false;
+  const [expira, firma] = token.split('.');
+  if (!expira || !firma) return false;
+  const firmaEsperada = firmar(expira);
+  if (firma.length !== firmaEsperada.length) return false;
+  const coincide = crypto.timingSafeEqual(Buffer.from(firma), Buffer.from(firmaEsperada));
+  return coincide && Number(expira) > Date.now();
+}
 
 function requiereLogin(req, res, next) {
   const token = req.headers['x-app-token'];
-  if (token && sesionesValidas.has(token)) return next();
+  if (tokenValido(token)) return next();
   return res.status(401).json({ error: 'Sesion no valida. Inicia sesion de nuevo.' });
 }
 
@@ -25,9 +46,7 @@ app.use(express.static('public'));
 app.post('/api/login', (req, res) => {
   const { usuario, clave } = req.body || {};
   if (usuario === APP_USER && clave === APP_PASSWORD) {
-    const token = crypto.randomBytes(24).toString('hex');
-    sesionesValidas.add(token);
-    return res.json({ token });
+    return res.json({ token: crearToken() });
   }
   return res.status(401).json({ error: 'Usuario o clave incorrectos.' });
 });
