@@ -15,6 +15,6 @@ Sitio web estático (HTML + CSS + JS, sin frameworks ni backend) para un negocio
 2. Antes de publicarlo, edita en `app.js`:
    - `WHATSAPP_NUMBER`: el número de WhatsApp real del negocio, en formato internacional sin `+` ni espacios (ej. `34600000000`).
    - `WEEK_MENU`: los platos, descripciones, calorías y precios de cada día.
-3. Cambia el email de contacto en `index.html` (`hola@zahidaskitchen.com`) y la zona/horario de entrega si hace falta.
+3. El email de contacto en `index.html` ya usa la cuenta real del negocio (`hola.zahidaskitchen@gmail.com`); cámbialo ahí si en el futuro usas otro, y ajusta la zona/horario de entrega si hace falta.
 
 No requiere `npm install` ni variables de entorno: es HTML/CSS/JS puro.
