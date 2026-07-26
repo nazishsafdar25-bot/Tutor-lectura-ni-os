@@ -2,14 +2,14 @@
 // TODO: cambia esto por el numero real de Zahida's Kitchen antes de publicar el sitio.
 const WHATSAPP_NUMBER = '34600000000';
 
-// Menu semanal: comida casera, un tema distinto cada dia.
+// Menu semanal: comida casera, un tema distinto cada dia. Todos los platos incluyen ensalada de acompañamiento.
 const WEEK_MENU = [
   {
     day: 'domingo',
     label: 'Domingo',
     theme: 'Plato de cuchara',
     dish: 'Cocido casero de la abuela',
-    description: 'Cocido tradicional con garbanzos, verduras y carne, cocinado a fuego lento como en casa.',
+    description: 'Cocido tradicional con garbanzos, verduras y carne, cocinado a fuego lento como en casa. Incluye ensalada de acompañamiento.',
     kcal: 560,
     price: 10.9
   },
@@ -18,7 +18,7 @@ const WEEK_MENU = [
     label: 'Lunes',
     theme: 'Día de verduras',
     dish: 'Menestra de verduras de temporada',
-    description: 'Judías verdes, zanahoria, guisantes y alcachofa salteados con un toque de jamón, al estilo casero.',
+    description: 'Judías verdes, zanahoria, guisantes y alcachofa salteados con un toque de jamón, al estilo casero. Incluye ensalada de acompañamiento.',
     kcal: 360,
     price: 8.5
   },
@@ -27,7 +27,7 @@ const WEEK_MENU = [
     label: 'Martes',
     theme: 'Día de carne',
     dish: 'Pollo al horno con patatas y verduras asadas',
-    description: 'Pollo al horno con hierbas, patatas y verduras de temporada asadas, como el de casa de la abuela.',
+    description: 'Pollo al horno con hierbas, patatas y verduras de temporada asadas, como el de casa de la abuela. Incluye ensalada de acompañamiento.',
     kcal: 530,
     price: 9.9
   },
@@ -35,8 +35,8 @@ const WEEK_MENU = [
     day: 'miércoles',
     label: 'Miércoles',
     theme: 'Día de pescado',
-    dish: 'Merluza a la plancha con ensalada y patata cocida',
-    description: 'Merluza fresca a la plancha, ensalada de la huerta y patata cocida con un chorrito de aceite de oliva.',
+    dish: 'Merluza a la plancha con patata cocida',
+    description: 'Merluza fresca a la plancha y patata cocida con un chorrito de aceite de oliva. Incluye ensalada de acompañamiento.',
     kcal: 420,
     price: 10.9
   },
@@ -44,17 +44,17 @@ const WEEK_MENU = [
     day: 'jueves',
     label: 'Jueves',
     theme: 'Día de arroz',
-    dish: 'Arroz integral con pollo y verduras',
-    description: 'Arroz integral cocinado con pollo, pimiento, guisantes y zanahoria, al estilo casero.',
-    kcal: 490,
-    price: 9.5
+    dish: 'Arroz con carne de vaca y verduras',
+    description: 'Arroz cocinado con carne de vaca, pimiento, guisantes y zanahoria, al estilo casero. Incluye ensalada de acompañamiento.',
+    kcal: 520,
+    price: 10.5
   },
   {
     day: 'viernes',
     label: 'Viernes',
     theme: 'Día de pasta',
     dish: 'Pasta integral con salsa boloñesa casera',
-    description: 'Pasta integral con salsa boloñesa hecha en casa, carne picada, tomate natural y verduras.',
+    description: 'Pasta integral con salsa boloñesa hecha en casa, carne picada, tomate natural y verduras. Incluye ensalada de acompañamiento.',
     kcal: 510,
     price: 8.9
   },
@@ -63,7 +63,7 @@ const WEEK_MENU = [
     label: 'Sábado',
     theme: 'Día de comida asiática',
     dish: 'Wok de pollo, verduras y fideos',
-    description: 'Fideos salteados al wok con pollo, brócoli, zanahoria y salsa de soja, al estilo asiático casero.',
+    description: 'Fideos salteados al wok con pollo, brócoli, zanahoria y salsa de soja, al estilo asiático casero. Incluye ensalada de acompañamiento.',
     kcal: 500,
     price: 9.9
   }
@@ -87,7 +87,7 @@ function renderTodayCard() {
       <p>${today.description}</p>
       <div class="dish-meta">
         <span>🔥 ${today.kcal} kcal</span>
-        <span>🏠 Casero</span>
+        <span>🥗 Con ensalada</span>
       </div>
     </div>
     <div class="dish-price">${formatPrice(today.price)}</div>
@@ -110,8 +110,9 @@ function renderWeekGrid() {
         <p>${item.description}</p>
         <div class="dish-meta">
           <span>🔥 ${item.kcal} kcal</span>
-          <span class="dish-price">${formatPrice(item.price)}</span>
+          <span>🥗 Con ensalada</span>
         </div>
+        <div class="dish-price">${formatPrice(item.price)}</div>
       </div>
     `;
   }).join('');
