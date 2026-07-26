@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zahida's Kitchen — Comida saludable a domicilio</title>
+<meta name="description" content="Zahida's Kitchen: menú saludable diferente cada día, cocinado con cariño y entregado a domicilio.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="#inicio">
+      <span class="brand-icon" aria-hidden="true">🥗</span>
+      <span class="brand-name">Zahida's Kitchen</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="main-nav" id="mainNav">
+      <a href="#inicio">Inicio</a>
+      <a href="#menu">Menú de hoy</a>
+      <a href="#semana">Semana</a>
+      <a href="#pedido">Pedir a domicilio</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section id="inicio" class="hero">
+    <div class="container hero-inner">
+      <div class="hero-text">
+        <span class="pill">🌿 Cocina casera y saludable</span>
+        <h1>Comida rica, saludable y <span class="highlight">diferente cada día</span>, directo a tu puerta.</h1>
+        <p>En Zahida's Kitchen preparamos un menú nuevo cada día con ingredientes frescos y recetas equilibradas. Elige el plato de hoy y recíbelo calentito en casa.</p>
+        <div class="hero-actions">
+          <a href="#menu" class="btn btn-primary">Ver menú de hoy</a>
+          <a href="#pedido" class="btn btn-outline">Pedir a domicilio</a>
+        </div>
+        <ul class="hero-stats">
+          <li><strong>7</strong><span>menús distintos a la semana</span></li>
+          <li><strong>100%</strong><span>ingredientes frescos</span></li>
+          <li><strong>🚲</strong><span>entrega a domicilio</span></li>
+        </ul>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="bowl-card">
+          <span class="bowl-emoji">🥙</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="menu" class="today-menu">
+    <div class="container">
+      <h2>El menú de hoy</h2>
+      <p class="section-sub">Se actualiza automáticamente según el día de la semana.</p>
+      <div id="todayCard" class="today-card">
+        <!-- Rellenado por app.js -->
+      </div>
+    </div>
+  </section>
+
+  <section id="semana" class="week-menu">
+    <div class="container">
+      <h2>Menú saludable de la semana</h2>
+      <p class="section-sub">Un plato equilibrado y distinto cada día. Todos incluyen entrante o ensalada de acompañamiento.</p>
+      <div id="weekGrid" class="week-grid">
+        <!-- Rellenado por app.js -->
+      </div>
+    </div>
+  </section>
+
+  <section id="pedido" class="order-section">
+    <div class="container order-inner">
+      <div class="order-info">
+        <h2>Pedido a domicilio</h2>
+        <p>Completa tus datos, elige el día y el plato, y te enviaremos el pedido listo para confirmar por WhatsApp. Así de fácil.</p>
+        <ul class="order-steps">
+          <li><span>1</span> Elige el día y el plato</li>
+          <li><span>2</span> Añade tu dirección y datos</li>
+          <li><span>3</span> Confirma el pedido por WhatsApp</li>
+        </ul>
+        <p class="order-note">Zona de entrega y horarios en la sección de <a href="#contacto">contacto</a>.</p>
+      </div>
+
+      <form id="orderForm" class="order-form">
+        <div class="form-row">
+          <label for="ofDay">Día del menú</label>
+          <select id="ofDay" name="dia" required></select>
+        </div>
+
+        <div class="form-row">
+          <label for="ofDish">Plato</label>
+          <select id="ofDish" name="plato" required></select>
+        </div>
+
+        <div class="form-row">
+          <label for="ofQty">Cantidad</label>
+          <input type="number" id="ofQty" name="cantidad" min="1" max="10" value="1" required>
+        </div>
+
+        <div class="form-row">
+          <label for="ofName">Nombre</label>
+          <input type="text" id="ofName" name="nombre" placeholder="Tu nombre" required>
+        </div>
+
+        <div class="form-row">
+          <label for="ofPhone">Teléfono</label>
+          <input type="tel" id="ofPhone" name="telefono" placeholder="Tu número de contacto" required>
+        </div>
+
+        <div class="form-row">
+          <label for="ofAddress">Dirección de entrega</label>
+          <textarea id="ofAddress" name="direccion" rows="2" placeholder="Calle, número, piso, ciudad" required></textarea>
+        </div>
+
+        <div class="form-row">
+          <label for="ofNotes">Notas (alergias, hora preferida, etc.)</label>
+          <textarea id="ofNotes" name="notas" rows="2" placeholder="Opcional"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+          <span aria-hidden="true">💬</span> Enviar pedido por WhatsApp
+        </button>
+        <p class="form-hint">Se abrirá WhatsApp con tu pedido ya escrito, solo tienes que confirmarlo.</p>
+      </form>
+    </div>
+  </section>
+
+  <section id="contacto" class="contact-section">
+    <div class="container contact-inner">
+      <div>
+        <h2>Contacto y entregas</h2>
+        <ul class="contact-list">
+          <li>📍 <strong>Zona de entrega:</strong> consulta disponibilidad en tu zona al hacer el pedido</li>
+          <li>🕒 <strong>Horario:</strong> lunes a sábado, 12:00–20:00</li>
+          <li>📞 <strong>WhatsApp:</strong> <a id="whatsappLink" href="#">Escríbenos</a></li>
+          <li>✉️ <strong>Email:</strong> <a href="mailto:hola@zahidaskitchen.com">hola@zahidaskitchen.com</a></li>
+        </ul>
+      </div>
+      <div class="contact-note">
+        <p>¿Tienes alguna alergia o preferencia alimentaria? Cuéntanoslo en las notas de tu pedido y adaptamos el plato siempre que sea posible.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <span>🥗 Zahida's Kitchen</span>
+    <span>Comida saludable, casera y diferente cada día.</span>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

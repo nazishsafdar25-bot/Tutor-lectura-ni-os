@@ -51,3 +51,7 @@ Abre `http://localhost:3000` en el navegador (o en el móvil, usando la IP de tu
 - Todo el contenido y las preguntas los genera Claude en cada sesión, así que cada lectura es distinta.
 - El servidor no guarda historial en base de datos: la conversación vive en el navegador durante la sesión, para mantener el prototipo simple.
 - El diseño usa fuentes redondeadas, colores cálidos y botones grandes para facilitar el uso táctil en niños y en móviles.
+
+## Otros proyectos en este repositorio
+
+- [`zahidas-kitchen/`](./zahidas-kitchen): sitio web estático de "Zahida's Kitchen", un negocio de comida saludable a domicilio con menú diferente cada día y pedidos por WhatsApp. Ver su propio `README.md` para más detalles.
