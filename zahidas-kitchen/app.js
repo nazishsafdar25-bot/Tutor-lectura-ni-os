@@ -1,6 +1,5 @@
 // Numero de WhatsApp del negocio para recibir pedidos (formato internacional, solo digitos, sin '+').
-// TODO: cambia esto por el numero real de Zahida's Kitchen antes de publicar el sitio.
-const WHATSAPP_NUMBER = '34600000000';
+const WHATSAPP_NUMBER = '34617758786';
 
 // Menu semanal: comida casera, un tema distinto cada dia. Todos los platos incluyen ensalada de acompañamiento.
 const WEEK_MENU = [
