@@ -2,63 +2,70 @@
 // TODO: cambia esto por el numero real de Zahida's Kitchen antes de publicar el sitio.
 const WHATSAPP_NUMBER = '34600000000';
 
-// Menu semanal: un plato saludable distinto cada dia.
+// Menu semanal: comida casera, un tema distinto cada dia.
 const WEEK_MENU = [
   {
     day: 'domingo',
     label: 'Domingo',
-    dish: 'Pasta integral con pesto casero y tomates cherry',
-    description: 'Pasta integral, pesto de albahaca casero, tomates cherry asados y un toque de parmesano.',
-    kcal: 520,
-    price: 9.5
+    theme: 'Plato de cuchara',
+    dish: 'Cocido casero de la abuela',
+    description: 'Cocido tradicional con garbanzos, verduras y carne, cocinado a fuego lento como en casa.',
+    kcal: 560,
+    price: 10.9
   },
   {
     day: 'lunes',
     label: 'Lunes',
-    dish: 'Bowl de quinoa, pollo a la plancha y vegetales asados',
-    description: 'Quinoa, pechuga de pollo a la plancha, calabacín, pimiento y zanahoria asados, aderezo de limón.',
-    kcal: 480,
-    price: 9.5
+    theme: 'Día de verduras',
+    dish: 'Menestra de verduras de temporada',
+    description: 'Judías verdes, zanahoria, guisantes y alcachofa salteados con un toque de jamón, al estilo casero.',
+    kcal: 360,
+    price: 8.5
   },
   {
     day: 'martes',
     label: 'Martes',
-    dish: 'Ensalada mediterránea con garbanzos y queso feta',
-    description: 'Garbanzos, pepino, tomate, aceitunas, queso feta y aliño de aceite de oliva y orégano.',
-    kcal: 420,
-    price: 8.5
+    theme: 'Día de carne',
+    dish: 'Pollo al horno con patatas y verduras asadas',
+    description: 'Pollo al horno con hierbas, patatas y verduras de temporada asadas, como el de casa de la abuela.',
+    kcal: 530,
+    price: 9.9
   },
   {
     day: 'miércoles',
     label: 'Miércoles',
-    dish: 'Salmón al horno con puré de camote y brócoli',
-    description: 'Salmón horneado con hierbas, puré de camote y brócoli al vapor.',
-    kcal: 540,
-    price: 11.5
+    theme: 'Día de pescado',
+    dish: 'Merluza a la plancha con ensalada y patata cocida',
+    description: 'Merluza fresca a la plancha, ensalada de la huerta y patata cocida con un chorrito de aceite de oliva.',
+    kcal: 420,
+    price: 10.9
   },
   {
     day: 'jueves',
     label: 'Jueves',
-    dish: 'Wrap integral de pavo, aguacate y espinaca',
-    description: 'Tortilla integral rellena de pechuga de pavo, aguacate, espinaca fresca y yogur natural.',
-    kcal: 460,
-    price: 8.9
+    theme: 'Día de arroz',
+    dish: 'Arroz integral con pollo y verduras',
+    description: 'Arroz integral cocinado con pollo, pimiento, guisantes y zanahoria, al estilo casero.',
+    kcal: 490,
+    price: 9.5
   },
   {
     day: 'viernes',
     label: 'Viernes',
-    dish: 'Curry de lentejas con arroz integral y vegetales',
-    description: 'Lentejas en curry suave de leche de coco, arroz integral y vegetales de temporada.',
-    kcal: 500,
+    theme: 'Día de pasta',
+    dish: 'Pasta integral con salsa boloñesa casera',
+    description: 'Pasta integral con salsa boloñesa hecha en casa, carne picada, tomate natural y verduras.',
+    kcal: 510,
     price: 8.9
   },
   {
     day: 'sábado',
     label: 'Sábado',
-    dish: 'Poke bowl de atún con edamame y pepino',
-    description: 'Atún fresco marinado, arroz de sushi, edamame, pepino, zanahoria y salsa de soja ligera.',
-    kcal: 510,
-    price: 10.9
+    theme: 'Día de comida asiática',
+    dish: 'Wok de pollo, verduras y fideos',
+    description: 'Fideos salteados al wok con pollo, brócoli, zanahoria y salsa de soja, al estilo asiático casero.',
+    kcal: 500,
+    price: 9.9
   }
 ];
 
@@ -75,12 +82,12 @@ function renderTodayCard() {
   const today = WEEK_MENU[getTodayIndex()];
   todayCard.innerHTML = `
     <div class="today-card-left">
-      <span class="today-day">${today.label}</span>
+      <span class="today-day">${today.label} · ${today.theme}</span>
       <h3>${today.dish}</h3>
       <p>${today.description}</p>
       <div class="dish-meta">
         <span>🔥 ${today.kcal} kcal</span>
-        <span>🌿 Saludable</span>
+        <span>🏠 Casero</span>
       </div>
     </div>
     <div class="dish-price">${formatPrice(today.price)}</div>
@@ -98,6 +105,7 @@ function renderWeekGrid() {
     return `
       <div class="day-card ${isToday ? 'is-today' : ''}">
         <span class="day-name">${item.label}${isToday ? '<span class="today-badge">HOY</span>' : ''}</span>
+        <span class="day-theme">${item.theme}</span>
         <h3>${item.dish}</h3>
         <p>${item.description}</p>
         <div class="dish-meta">
